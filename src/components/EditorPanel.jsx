@@ -38,6 +38,28 @@ function EditorPanel({ cvData, setCVData }) {
     setCVData(prev => ({ ...prev, sections: reordered }));
   };
 
+  const onItemChange = (sectionIndex, itemIndex, field, value) => {
+    console.log("onItemChange called", { sectionIndex, itemIndex, field, value });
+    setCVData(prev => {
+      const updated = prev.sections.map((section, idx) =>
+        idx === sectionIndex
+          ? { ...section, items: [...section.items] }
+          : section
+      );
+
+      if (field === "addItem") {
+        const template = updated[sectionIndex].items[0] || {};
+        const emptyItem = Object.fromEntries(Object.keys(template).map(k => [k, ""]));
+        updated[sectionIndex].items.push(emptyItem);
+      } else if (field === "removeItem") {
+        updated[sectionIndex].items.splice(itemIndex, 1);
+      } else {
+        updated[sectionIndex].items[itemIndex][field] = value;
+      }
+
+      return { ...prev, sections: updated };
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -80,16 +102,34 @@ function EditorPanel({ cvData, setCVData }) {
             <SortableSection
               key={section.id}
               section={section}
-              index={i}
-              onItemChange={(itemIndex, field, value) => {
-                const updated = [...cvData.sections];
-                updated[i].items[itemIndex][field] = value;
-                setCVData({ ...cvData, sections: updated });
-              }}
+              onItemChange={(itemIndex, field, value) =>
+                onItemChange(i, itemIndex, field, value)
+              }
             />
           ))}
         </SortableContext>
       </DndContext>
+      <button
+  onClick={() => {
+    const newSection = {
+      id: crypto.randomUUID(),
+      title: "New Section",
+      items: [
+        {
+          role: "",
+          company: "",
+          date: "",
+          description: "",
+        },
+      ],
+    };
+    setCVData(prev => ({ ...prev, sections: [...prev.sections, newSection] }));
+  }}
+  className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+>
+  ➕ Add Section
+</button>
+
     </div>
   );
 }
