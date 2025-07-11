@@ -48,14 +48,18 @@ function EditorPanel({ cvData, setCVData }) {
       );
 
       if (field === "addItem") {
-        const template = updated[sectionIndex].items[0] || {};
-        const emptyItem = Object.fromEntries(Object.keys(template).map(k => [k, ""]));
-        updated[sectionIndex].items.push(emptyItem);
-      } else if (field === "removeItem") {
-        updated[sectionIndex].items.splice(itemIndex, 1);
-      } else {
-        updated[sectionIndex].items[itemIndex][field] = value;
-      }
+  const template = updated[sectionIndex].items[0] || {};
+  const emptyItem = Object.fromEntries(Object.keys(template).map(k => [k, ""]));
+  updated[sectionIndex].items.push(emptyItem);
+} else if (field === "removeItem") {
+  updated[sectionIndex].items.splice(itemIndex, 1);
+} else if (field === "title") {
+  updated[sectionIndex].title = value;
+} else {
+  updated[sectionIndex].items[itemIndex][field] = value;
+}
+
+
 
       return { ...prev, sections: updated };
     });
@@ -110,25 +114,25 @@ function EditorPanel({ cvData, setCVData }) {
         </SortableContext>
       </DndContext>
       <button
-  onClick={() => {
-    const newSection = {
-      id: crypto.randomUUID(),
-      title: "New Section",
-      items: [
-        {
-          role: "",
-          company: "",
-          date: "",
-          description: "",
-        },
-      ],
-    };
-    setCVData(prev => ({ ...prev, sections: [...prev.sections, newSection] }));
-  }}
-  className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
->
-  ➕ Add Section
-</button>
+        onClick={() => {
+          const newSection = {
+            id: crypto.randomUUID(),
+            title: "New Section",
+            items: [
+              {
+                role: "",
+                company: "",
+                date: "",
+                description: "",
+              },
+            ],
+          };
+          setCVData(prev => ({ ...prev, sections: [...prev.sections, newSection] }));
+        }}
+        className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        ➕ Add Section
+      </button>
 
     </div>
   );

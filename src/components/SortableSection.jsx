@@ -3,13 +3,19 @@ import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
 
 export function SortableSection({ section, onItemChange }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-    id: section.id,
-  });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: section.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0.6 : 1,
   };
 
   const [collapsed, setCollapsed] = useState(false);
@@ -18,16 +24,31 @@ export function SortableSection({ section, onItemChange }) {
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      className="border p-3 rounded bg-white mb-4 shadow-sm cursor-move"
+      // {...attributes}
+      // {...listeners}
+      className="border p-3 rounded bg-white mb-4 shadow cursor-grab active:cursor-grabbing"
     >
+
       <div className="flex items-center justify-between mb-2">
-        <h3
-          className="font-bold cursor-move"
-          {...listeners} // Only here!
-        >
-          {section.title}
-        </h3>
+        <div className="flex items-center gap-2 mb-1">
+          <span
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing text-gray-400 select-none"
+            title="Drag section"
+          >
+            ☰
+          </span>
+          <input
+            type="text"
+            value={section.title}
+            onChange={(e) => onItemChange(null, "title", e.target.value)}
+            className="font-bold text-lg w-full border-b border-gray-300 outline-none bg-transparent"
+          />
+        </div>
+
+
+
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="text-sm text-gray-500"
