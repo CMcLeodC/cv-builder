@@ -27,43 +27,68 @@ function EditorPanel({ cvData, setCVData }) {
     })
   );
 
+  const newSectionId = `section-${crypto.randomUUID()}`;
+
   const handleDragEnd = (event) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = cvData.sections.findIndex(sec => sec.id === active.id);
-    const newIndex = cvData.sections.findIndex(sec => sec.id === over.id);
-    const reordered = arrayMove(cvData.sections, oldIndex, newIndex);
+    const [activeType, activeId] = active.id.split("-");
+    const [overType, overId] = over.id.split("-");
 
-    setCVData(prev => ({ ...prev, sections: reordered }));
+    if (activeType === "section" && overType === "section") {
+      const oldIndex = cvData.sections.findIndex(s => s.id === active.id);
+      const newIndex = cvData.sections.findIndex(s => s.id === over.id);
+      const reordered = arrayMove(cvData.sections, oldIndex, newIndex);
+      setCVData(prev => ({ ...prev, sections: reordered }));
+    }
+
+    if (activeType === "item" && overType === "item") {
+      // Loop through sections to find which contains the item
+      const sectionIndex = cvData.sections.findIndex(s =>
+        s.items.some(i => i.id === active.id)
+      );
+      const section = cvData.sections[sectionIndex];
+      const oldIndex = section.items.findIndex(i => i.id === active.id);
+      const newIndex = section.items.findIndex(i => i.id === over.id);
+
+      const reorderedItems = arrayMove(section.items, oldIndex, newIndex);
+
+      const updatedSections = [...cvData.sections];
+      updatedSections[sectionIndex] = { ...section, items: reorderedItems };
+      setCVData(prev => ({ ...prev, sections: updatedSections }));
+    }
   };
 
-  const onItemChange = (sectionIndex, itemIndex, field, value) => {
-    console.log("onItemChange called", { sectionIndex, itemIndex, field, value });
+
+
+  const onItemChange = (sectionIndex, action, payload) => {
     setCVData(prev => {
-      const updated = prev.sections.map((section, idx) =>
-        idx === sectionIndex
-          ? { ...section, items: [...section.items] }
-          : section
-      );
+      const updated = [...prev.sections];
+      const section = { ...updated[sectionIndex] };
 
-      if (field === "addItem") {
-  const template = updated[sectionIndex].items[0] || {};
-  const emptyItem = Object.fromEntries(Object.keys(template).map(k => [k, ""]));
-  updated[sectionIndex].items.push(emptyItem);
-} else if (field === "removeItem") {
-  updated[sectionIndex].items.splice(itemIndex, 1);
-} else if (field === "title") {
-  updated[sectionIndex].title = value;
-} else {
-  updated[sectionIndex].items[itemIndex][field] = value;
-}
+      if (action === "title") {
+        section.title = payload;
+      } else if (action === "edit") {
+        section.items[payload.index][payload.field] = payload.value;
+      } else if (action === "remove") {
+        section.items.splice(payload.index, 1);
+      } else if (action === "add") {
+        const template = section.items[0] || {};
+        const emptyItem = {
+          ...Object.fromEntries(Object.keys(template).map(k => [k, ""])),
+          id: `item-${crypto.randomUUID()}`,
+        };
+        section.items.push(emptyItem);
+      } else if (action === "reorder") {
+        section.items = payload;
+      }
 
-
-
+      updated[sectionIndex] = section;
       return { ...prev, sections: updated };
     });
   };
+
 
   return (
     <div className="space-y-6">
@@ -106,20 +131,22 @@ function EditorPanel({ cvData, setCVData }) {
             <SortableSection
               key={section.id}
               section={section}
-              onItemChange={(itemIndex, field, value) =>
-                onItemChange(i, itemIndex, field, value)
-              }
+              // sectionIndex={i}
+              // onSectionDragEnd={handleDragEnd}
+              onItemChange={(action, payload) => onItemChange(i, action, payload)}
             />
           ))}
         </SortableContext>
+
       </DndContext>
       <button
         onClick={() => {
           const newSection = {
-            id: crypto.randomUUID(),
+            id: newSectionId,
             title: "New Section",
             items: [
               {
+                id: `item-${crypto.randomUUID()}`,
                 role: "",
                 company: "",
                 date: "",

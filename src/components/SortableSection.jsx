@@ -1,57 +1,66 @@
 import { useSortable } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
+import { SortableItem } from "./SortableItem";
 
 export function SortableSection({ section, onItemChange }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: section.id });
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: section.id,
+    });
+
+  const [collapsed, setCollapsed] = useState(false);
+  const sensors = useSensors(useSensor(PointerSensor));
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.6 : 1,
   };
 
-  const [collapsed, setCollapsed] = useState(false);
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = section.items.findIndex((item) => item.id === active.id);
+    const newIndex = section.items.findIndex((item) => item.id === over.id);
+
+    const reordered = arrayMove(section.items, oldIndex, newIndex);
+    onItemChange("reorder", reordered);
+  };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      // {...attributes}
-      // {...listeners}
-      className="border p-3 rounded bg-white mb-4 shadow cursor-grab active:cursor-grabbing"
+      {...attributes}
+      className="border p-3 rounded bg-white mb-4 shadow-sm"
     >
-
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2 mb-1">
-          <span
-            {...attributes}
-            {...listeners}
-            className="cursor-grab active:cursor-grabbing text-gray-400 select-none"
-            title="Drag section"
-          >
-            ☰
-          </span>
-          <input
-            type="text"
-            value={section.title}
-            onChange={(e) => onItemChange(null, "title", e.target.value)}
-            className="font-bold text-lg w-full border-b border-gray-300 outline-none bg-transparent"
-          />
-        </div>
-
-
-
+      <div
+        className="flex items-center justify-between mb-2"
+      >
+        <input
+          className="text-lg font-bold w-full mr-2 bg-transparent outline-none"
+          value={section.title}
+          onChange={(e) => onItemChange("title", e.target.value)}
+        />
+        <span {...listeners} className="cursor-move px-2 text-gray-500">
+          ☰
+        </span>
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="text-sm text-gray-500"
+          className="text-sm text-gray-500 ml-2"
         >
           {collapsed ? "🔽 Show Section" : "🔼 Hide Section"}
         </button>
@@ -59,69 +68,32 @@ export function SortableSection({ section, onItemChange }) {
 
       {!collapsed && (
         <>
-          {section.items.map((item, idx) => (
-            <div key={idx} className="space-y-2 border p-2 rounded mb-4">
-              {item.role !== undefined && (
-                <>
-                  <input
-                    className="w-full p-1 border rounded"
-                    placeholder="Role"
-                    value={item.role}
-                    onChange={(e) => onItemChange(idx, "role", e.target.value)}
-                  />
-                  <input
-                    className="w-full p-1 border rounded"
-                    placeholder="Company"
-                    value={item.company}
-                    onChange={(e) => onItemChange(idx, "company", e.target.value)}
-                  />
-                </>
-              )}
-
-              {item.degree !== undefined && (
-                <>
-                  <input
-                    className="w-full p-1 border rounded"
-                    placeholder="Degree"
-                    value={item.degree}
-                    onChange={(e) => onItemChange(idx, "degree", e.target.value)}
-                  />
-                  <input
-                    className="w-full p-1 border rounded"
-                    placeholder="Institution"
-                    value={item.institution}
-                    onChange={(e) => onItemChange(idx, "institution", e.target.value)}
-                  />
-                </>
-              )}
-
-              <input
-                className="w-full p-1 border rounded"
-                placeholder="Date"
-                value={item.date}
-                onChange={(e) => onItemChange(idx, "date", e.target.value)}
-              />
-
-              {item.description !== undefined && (
-                <textarea
-                  className="w-full p-1 border rounded"
-                  placeholder="Description"
-                  value={item.description}
-                  onChange={(e) => onItemChange(idx, "description", e.target.value)}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={section.items.map((item) => item.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {section.items.map((item, idx) => (
+                <SortableItem
+                  key={item.id}
+                  item={item}
+                  idx={idx}
+                  onChange={(field, value) =>
+                    onItemChange("edit", { index: idx, field, value })
+                  }
+                  onRemove={() => onItemChange("remove", { index: idx })}
                 />
-              )}
+              ))}
+            </SortableContext>
+          </DndContext>
 
-              <button
-                onClick={() => onItemChange(idx, "removeItem", null)}
-                className="text-xs text-red-500 mt-1 hover:underline"
-              >
-                Remove
-              </button>
-            </div>
-          ))}
           <button
-            onClick={() => onItemChange(null, "addItem", null)}
-            className="text-sm text-blue-600 hover:underline"
+            onClick={() => onItemChange("add")}
+            className="text-sm text-blue-600 hover:underline mt-2"
           >
             ➕ Add Item
           </button>
