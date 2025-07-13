@@ -92,6 +92,43 @@ function EditorPanel({ cvData, setCVData }) {
 
   return (
     <div className="space-y-6">
+      <div className="space-y-2 mt-4">
+        <h3 className="font-semibold">Font Sizes</h3>
+
+        <label className="block">Name Font Size</label>
+        <select
+          value={cvData.styles.nameFontSize}
+          onChange={(e) =>
+            setCVData(prev => ({
+              ...prev,
+              styles: { ...prev.styles, nameFontSize: e.target.value },
+            }))
+          }
+          className="border rounded p-1"
+        >
+          <option value="text-2xl">2xl</option>
+          <option value="text-3xl">3xl</option>
+          <option value="text-4xl">4xl</option>
+        </select>
+
+        <label className="block">Section Title Font Size</label>
+        <select
+          value={cvData.styles.sectionTitleFontSize}
+          onChange={(e) =>
+            setCVData(prev => ({
+              ...prev,
+              styles: { ...prev.styles, sectionTitleFontSize: e.target.value },
+            }))
+          }
+          className="border rounded p-1"
+        >
+          <option value="text-base">Base</option>
+          <option value="text-lg">Large</option>
+          <option value="text-xl">XL</option>
+        </select>
+
+        {/* Add similar controls for titleFontSize, roleFontSize, bodyFontSize if you want */}
+      </div>
       {/* Name, Title, Summary */}
       <div>
         <label className="block font-semibold">Full Name</label>
@@ -110,6 +147,34 @@ function EditorPanel({ cvData, setCVData }) {
           onChange={(e) => handleChange('title', e.target.value)}
         />
       </div>
+
+      <div>
+        <label className="block font-semibold">Email</label>
+        <input
+          className="w-full p-2 border rounded"
+          value={cvData.email}
+          onChange={(e) => handleChange('email', e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="block font-semibold">Phone</label>
+        <input
+          className="w-full p-2 border rounded"
+          value={cvData.phone}
+          onChange={(e) => handleChange('phone', e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="block font-semibold">Location</label>
+        <input
+          className="w-full p-2 border rounded"
+          value={cvData.location}
+          onChange={(e) => handleChange('location', e.target.value)}
+        />
+      </div>
+
 
       <div>
         <label className="block font-semibold">Summary</label>
@@ -160,6 +225,7 @@ function EditorPanel({ cvData, setCVData }) {
       >
         ➕ Add Section
       </button>
+      
 
     </div>
   );

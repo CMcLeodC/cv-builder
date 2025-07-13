@@ -1,14 +1,23 @@
 export const defaultCV = {
   name: "Connor Smith",
   title: "Full Stack Developer",
+  email: "connor@example.com",
+  phone: "+44 1234 567890",
+  location: "Edinburgh, UK",
   summary: "Passionate developer with 5+ years of experience...",
+  styles: {
+    nameFontSize: "text-3xl",
+    titleFontSize: "text-xl",
+    sectionTitleFontSize: "text-lg",
+    roleFontSize: "text-base",
+    bodyFontSize: "text-sm",
+  },
   sections: [
     {
-      id: "section-work",
+      id: "work",
       title: "Work Experience",
       items: [
         {
-          id: "item-work-1",
           role: "Backend Developer",
           company: "TechCorp",
           date: "2020–2023",
@@ -17,11 +26,10 @@ export const defaultCV = {
       ],
     },
     {
-      id: "section-education",
+      id: "education",
       title: "Education",
       items: [
         {
-          id: "item-edu-1",
           degree: "BSc in Computer Science",
           institution: "University of Edinburgh",
           date: "2016–2020",
