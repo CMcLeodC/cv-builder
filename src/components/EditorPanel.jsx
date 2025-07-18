@@ -128,6 +128,38 @@ function EditorPanel({ cvData, setCVData }) {
         </select>
 
         {/* Add similar controls for titleFontSize, roleFontSize, bodyFontSize if you want */}
+        <label className="block">Font Family</label>
+        <select
+          value={cvData.styles.fontFamily}
+          onChange={(e) =>
+            setCVData(prev => ({
+              ...prev,
+              styles: { ...prev.styles, fontFamily: e.target.value },
+            }))
+          }
+          className="border rounded p-1"
+        >
+          <option value="font-sans">Sans</option>
+          <option value="font-serif">Serif</option>
+          <option value="font-mono">Mono</option>
+        </select>
+
+        <label className="block mt-2">Body Font Size</label>
+        <select
+          value={cvData.styles.bodyFontSize}
+          onChange={(e) =>
+            setCVData(prev => ({
+              ...prev,
+              styles: { ...prev.styles, bodyFontSize: e.target.value },
+            }))
+          }
+          className="border rounded p-1"
+        >
+          <option value="text-sm">Small</option>
+          <option value="text-base">Base</option>
+          <option value="text-lg">Large</option>
+        </select>
+
       </div>
       {/* Name, Title, Summary */}
       <div>
@@ -216,6 +248,7 @@ function EditorPanel({ cvData, setCVData }) {
                 company: "",
                 date: "",
                 description: "",
+                
               },
             ],
           };
@@ -225,7 +258,7 @@ function EditorPanel({ cvData, setCVData }) {
       >
         ➕ Add Section
       </button>
-      
+
 
     </div>
   );

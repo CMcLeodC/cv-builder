@@ -11,6 +11,7 @@ export const defaultCV = {
     sectionTitleFontSize: "text-lg",
     roleFontSize: "text-base",
     bodyFontSize: "text-sm",
+    fontFamily: "font-sans"
   },
   sections: [
     {

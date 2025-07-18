@@ -8,6 +8,8 @@ function ModernTemplate({ cvData }) {
       <h2 className={`${cvData.styles?.titleFontSize || 'text-xl'} text-gray-500`}>
         {cvData.title}
       </h2>
+      <div className={`${cvData.styles?.fontFamily || "font-sans"} space-y-4 text-gray-800`}></div>
+
       <div className="text-sm text-gray-600 space-x-4">
         {cvData.email && <span>{cvData.email}</span>}
         {cvData.phone && <span>{cvData.phone}</span>}
@@ -29,9 +31,17 @@ function ModernTemplate({ cvData }) {
               )}
               {item.degree && <p>{item.degree}, {item.institution}</p>}
               <p className="text-sm text-gray-600 italic">{item.date}</p>
-              <p className={`${cvData.styles?.bodyFontSize || 'text-sm'}`}>
-                {item.description}
+              <p className={`${cvData.styles?.bodyFontSize || "text-sm"}`}>
+                {item.description && (
+                  <ul className="ml-4 list-disc space-y-1">
+                    {item.description.split("\n").map((line, i) => (
+                      <li key={i}>{line}</li>
+                    ))}
+                  </ul>
+                )}
+
               </p>
+
             </div>
           ))}
         </div>

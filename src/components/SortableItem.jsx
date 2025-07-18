@@ -59,12 +59,17 @@ export function SortableItem({ item, idx, onChange, onRemove }) {
       />
 
       {item.description !== undefined && (
-        <textarea
-          className="w-full p-1 border rounded"
-          placeholder="Description"
-          value={item.description}
-          onChange={(e) => onChange("description", e.target.value)}
-        />
+        <>
+          <textarea
+            className="w-full p-1 border rounded"
+            placeholder="Description"
+            value={item.description}
+            onChange={(e) => onChange("description", e.target.value)}
+          />
+          <small className="text-xs text-gray-500">
+            Tip: Use line breaks to create bullet points
+          </small>
+        </>
       )}
     </div>
   );
